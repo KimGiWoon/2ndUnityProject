@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class CatController : MonoBehaviour
 {
-    [SerializeField] CatStatus _catStatus;
-    Rigidbody _catRigid;
+    CatMovement _catMovement;
+    CatStatus _catStatus;
     Animator _catAnimator;
-    Vector3 _moveVec;
 
     private void Awake()
     {
@@ -18,36 +17,22 @@ public class CatController : MonoBehaviour
     {
         if (_catStatus._isAlive)
         {
-            SetMove();
-
+            CatMovement();
         }
-    }
-
-    private void FixedUpdate()
-    {
-
     }
 
     private void Init()
     {
-        _catRigid = GetComponent<Rigidbody>();
+        _catMovement = GetComponent<CatMovement>();
+        _catStatus = GetComponent<CatStatus>();
         _catAnimator = GetComponent<Animator>();
         _catStatus._isAlive = true;
     }
 
-    private void SetMove()
+    private void CatMovement()
     {
-        // Move Input
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveZ = Input.GetAxisRaw("Vertical");
-        _moveVec = new Vector3(moveX, 0 , moveZ);
-
-        _catRigid.velocity = Vector3.MoveTowards(_catRigid.velocity, _moveVec * _catStatus._moveSpeed, _catStatus._acceleSpeed);
-    }
-
-    private void SetRotation()
-    {
-
+        _catMovement.SetMove();
+        _catMovement.SetRotation();
     }
 
 }

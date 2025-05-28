@@ -18,6 +18,10 @@ public class CatStatus : MonoBehaviour
     [SerializeField] float jumpPower;
     public float _jumpPower { get { return jumpPower; } set { jumpPower = value; } }
 
+    // Cat Rotate Speed
+    [SerializeField] float rotateSpeed;
+    public float _rotateSpeed { get {return rotateSpeed; } set { rotateSpeed = value; } }
+
     // Cat Alive Check
     [SerializeField] bool isAlive;
     public bool _isAlive { get { return isAlive; } set { isAlive = value; } }
