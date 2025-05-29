@@ -43,8 +43,19 @@ public class CatMovement : MonoBehaviour
         float moveZ = Input.GetAxisRaw("Vertical");
 
         Vector3 inputDir = new Vector3(moveX, 0, moveZ).normalized;
-        return inputDir;
 
+        Vector3 camForward = _cam.forward;
+        Vector3 camRight = _cam.right;
+
+        camForward.y = 0;
+        camRight.y = 0;
+
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 moveDir = camForward * inputDir.z + camRight * inputDir.x;
+
+        return moveDir.normalized;
     }
 
     public Vector2 GetMouseInput() // Mouse Button Input
