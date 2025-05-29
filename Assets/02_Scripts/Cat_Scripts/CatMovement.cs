@@ -1,20 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CatMovement : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] Transform _avatar;
+    [SerializeField] Transform _cam;
+
+    [Header("setting")]
+    [SerializeField] float _catGravity = 10f;
 
     Rigidbody _catRigid;
     CatStatus _catStatus;
-    Vector3 _moveVec;
     Vector2 _rotationVec;
 
     [Header("Mouse Config")]
-    [SerializeField][Range(-90, 0)] float _minPitch;
-    [SerializeField][Range(0, 90)] float _maxPitch;
+    [SerializeField][Range(-90, 0)] float _minRange;
+    [SerializeField][Range(0, 90)] float _maxRange;
     [SerializeField][Range(0, 5)] float _mouseSensitivity = 1;
 
     private void Awake()
@@ -22,47 +26,64 @@ public class CatMovement : MonoBehaviour
         Init();
     }
 
-    private void Init() // Compoenent Initial
+    private void FixedUpdate()
     {
-        _catRigid = GetComponent<Rigidbody>();
-        _catStatus = GetComponent<CatStatus>();
+        _catRigid.AddForce(Physics.gravity * _catGravity, ForceMode.Acceleration);
     }
 
-    public void GetMoveInput()  // Move key Input
+    private void Init() // Compoenent Initial
+    {
+        _catStatus = GetComponent<CatStatus>();
+        _catRigid = GetComponent<Rigidbody>();
+    }
+
+    public Vector3 GetMoveInput()  // Move key Input
     {
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
 
-        _moveVec = new Vector3(moveX, 0, moveZ);
+        Vector3 inputDir = new Vector3(moveX, 0, moveZ).normalized;
+        return inputDir;
+
     }
 
-    public void GetMouseInput() // Mouse Button Input
+    public Vector2 GetMouseInput() // Mouse Button Input
     {
         float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity;
+        float mouseY = -Input.GetAxis("Mouse Y") * _mouseSensitivity;
 
-        _rotationVec =  new Vector2(mouseX, mouseY);
+        return new Vector2(mouseX, mouseY);
     }
 
-    public void SetMove()   // Cat Movement
+    public Vector3 SetMove()   // Cat Movement
     {
-        GetMoveInput();
-        _catRigid.velocity = Vector3.MoveTowards(_catRigid.velocity, _moveVec * _catStatus._moveSpeed, _catStatus._acceleSpeed);
+        Vector3 moveDir =  GetMoveInput();
+        Vector3 moveVelocity = _catRigid.velocity;
+        moveVelocity = Vector3.MoveTowards(_catRigid.velocity, moveDir * _catStatus._moveSpeed, _catStatus._acceleSpeed);
+        _catRigid.velocity = moveVelocity;
+
+        return moveDir;
     }
 
-    public void SetRotation()   // Cat Move Rotation 
+    public void SetRotation(Vector3 moveDir)   // Cat Move Rotation 
     {
-        if (_catRigid.velocity == Vector3.zero)
+        if (moveDir == Vector3.zero)
         {
             return;
         }
-        Quaternion catRotation = Quaternion.LookRotation(_catRigid.velocity);
-        _avatar.rotation = Quaternion.Lerp(_avatar.rotation, catRotation, _catStatus._rotateSpeed * Time.deltaTime);
+        Quaternion catRotation = Quaternion.LookRotation(moveDir);
+        _avatar.rotation = Quaternion.Slerp(_avatar.rotation, catRotation, _catStatus._rotateSpeed * Time.deltaTime);
     }
 
-    public void SetMouseRotation()
+    public void SetMouseRotation()  // Camera Rotation
     {
-        
+        Vector2 mouseDir = GetMouseInput();
+
+        _rotationVec.x += mouseDir.x;
+        _rotationVec.y = Mathf.Clamp(_rotationVec.y + mouseDir.y, _minRange, _maxRange);
+        transform.rotation = Quaternion.Euler(0, _rotationVec.x, 0);
+
+        _cam.localEulerAngles = new Vector3(_rotationVec.y, 0, 0);
 
     }
 

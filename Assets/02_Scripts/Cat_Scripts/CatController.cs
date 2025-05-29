@@ -31,8 +31,11 @@ public class CatController : MonoBehaviour
 
     private void CatMovement()
     {
-        _catMovement.SetMove();
-        _catMovement.SetRotation();
+        // Cat Move
+        Vector3 moveDir = _catMovement.SetMove();
+        _catMovement.SetRotation(moveDir);
+        _catMovement.SetMouseRotation();
     }
+    
 
 }
