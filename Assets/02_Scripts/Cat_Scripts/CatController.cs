@@ -6,7 +6,7 @@ public class CatController : MonoBehaviour
 {
     CatMovement _catMovement;
     CatStatus _catStatus;
-    Animator _catAnimator;
+    
 
     private void Awake()
     {
@@ -18,6 +18,7 @@ public class CatController : MonoBehaviour
         if (_catStatus._isAlive)
         {
             CatMovement();
+            _catMovement.GetJump();
         }
     }
 
@@ -25,7 +26,6 @@ public class CatController : MonoBehaviour
     {
         _catMovement = GetComponent<CatMovement>();
         _catStatus = GetComponent<CatStatus>();
-        _catAnimator = GetComponent<Animator>();
         _catStatus._isAlive = true;
     }
 
@@ -33,9 +33,11 @@ public class CatController : MonoBehaviour
     {
         // Cat Move
         Vector3 moveDir = _catMovement.SetMove();
+        bool isRun = moveDir != Vector3.zero ? true : false;
+        _catMovement._catAnimator.SetBool("Run", isRun);
+
         _catMovement.SetRotation(moveDir);
         _catMovement.SetMouseRotation();
     }
-    
 
 }
