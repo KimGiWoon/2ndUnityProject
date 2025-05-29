@@ -75,7 +75,8 @@ public class CatMovement : MonoBehaviour
     {
         Vector3 moveDir =  GetMoveInput();
         Vector3 moveVelocity = _catRigid.velocity;
-        moveVelocity = Vector3.MoveTowards(_catRigid.velocity, moveDir * _catStatus._moveSpeed, _catStatus._acceleSpeed);
+        moveVelocity.x = moveDir.x * _catStatus._moveSpeed;
+        moveVelocity.z = moveDir.z * _catStatus._moveSpeed;
         _catRigid.velocity = moveVelocity;
 
         return moveDir;
