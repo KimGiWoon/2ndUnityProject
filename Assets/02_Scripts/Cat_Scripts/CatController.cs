@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CatController : MonoBehaviour
+public class CatController : MonoBehaviour, IDamagable
 {
     [SerializeField] Animator _catAnimator;
     [SerializeField] float _rollStartVel = -5f;
@@ -130,5 +130,10 @@ public class CatController : MonoBehaviour
     {
         _currentPosition = gameObject.transform.position;
         yield return _positionSaveTime;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        
     }
 }
