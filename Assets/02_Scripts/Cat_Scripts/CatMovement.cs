@@ -9,12 +9,10 @@ public class CatMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] Transform _avatar;
     [SerializeField] Transform _cam;
-    [SerializeField] public Animator _catAnimator;
 
-    Rigidbody _catRigid;
+    public Rigidbody _catRigid;
     CatStatus _catStatus;
     Vector2 _rotationVec;
-    bool _isGround = true;
 
     [Header("Mouse Config")]
     [SerializeField][Range(-90, 0)] float _minRange;
@@ -60,17 +58,7 @@ public class CatMovement : MonoBehaviour
 
         return new Vector2(mouseX, mouseY);
     }
-
-    public void GetJump()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && _isGround)            
-        {
-            _catRigid.AddForce(Vector3.up * _catStatus._jumpPower, ForceMode.Impulse);
-            _catAnimator.SetBool("Jump",true);
-            _isGround = false;
-        }
-    }
-
+    
     public Vector3 SetMove()   // Cat Movement
     {
         Vector3 moveDir =  GetMoveInput();
@@ -104,13 +92,5 @@ public class CatMovement : MonoBehaviour
 
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            _catAnimator.SetBool("Jump", false);
-            _isGround = true;
-        }
-
-    }
+    
 }

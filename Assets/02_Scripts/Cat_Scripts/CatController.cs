@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class CatController : MonoBehaviour
 {
+    [SerializeField] Animator _catAnimator;
+    [SerializeField] float _rollStartVel = -4f;
     CatMovement _catMovement;
     CatStatus _catStatus;
-    
+    bool _isGround;
 
     private void Awake()
     {
@@ -18,8 +20,13 @@ public class CatController : MonoBehaviour
         if (_catStatus._isAlive)
         {
             CatMovement();
-            _catMovement.GetJump();
+            GetJump();
         }
+    }
+
+    private void FixedUpdate()
+    {
+        DownSpin();
     }
 
     private void Init()
@@ -27,17 +34,48 @@ public class CatController : MonoBehaviour
         _catMovement = GetComponent<CatMovement>();
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
+        _isGround = true;
     }
 
     private void CatMovement()
     {
         // Cat Move
         Vector3 moveDir = _catMovement.SetMove();
-        bool isRun = moveDir != Vector3.zero ? true : false;
-        _catMovement._catAnimator.SetBool("Run", isRun);
+        //bool isRun = moveDir != Vector3.zero ? true : false;
+        _catAnimator.SetFloat("MoveSpeed", moveDir.magnitude);
 
         _catMovement.SetRotation(moveDir);
         _catMovement.SetMouseRotation();
     }
 
+    private void DownSpin()
+    {
+        if(_catMovement._catRigid.velocity.y < _rollStartVel)
+        {
+            _catAnimator.SetBool("Roll", true);
+        }
+    }
+
+    public void GetJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && _isGround)
+        {
+            _catMovement._catRigid.AddForce(Vector3.up * _catStatus._jumpPower, ForceMode.Impulse);
+            _catAnimator.SetBool("Jump", true);
+            _isGround = false;
+            
+            DownSpin();
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            _catAnimator.SetBool("Jump", false);
+            _catAnimator.SetBool("Roll", false);
+            _isGround = true;
+        }
+
+    }
 }
