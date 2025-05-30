@@ -5,10 +5,15 @@ using UnityEngine;
 public class CatController : MonoBehaviour
 {
     [SerializeField] Animator _catAnimator;
-    [SerializeField] float _rollStartVel = -4f;
+    [SerializeField] float _rollStartVel = -5f;
+    [SerializeField] float _posSaveTime = 1f;
+    Vector3 _currentPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
     bool _isGround;
+    public Coroutine _posCoroutine;
+    WaitForSeconds _positionSaveTime;
+    float _DownTime;
 
     private void Awake()
     {
@@ -34,6 +39,8 @@ public class CatController : MonoBehaviour
         _catMovement = GetComponent<CatMovement>();
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
+        _positionSaveTime = new WaitForSeconds(_posSaveTime);
+        _DownTime = 0;
     }
 
     private void CatMovement()
@@ -49,16 +56,31 @@ public class CatController : MonoBehaviour
 
     private void DownSpin()
     {
-        if(_catMovement._catRigid.velocity.y < _rollStartVel)
+
+        if (_catMovement._catRigid.velocity.y < _rollStartVel)
         {
             _catAnimator.SetBool("Roll", true);
+
+            _DownTime += Time.fixedDeltaTime;
+            Debug.Log($"다운 타임 : {_DownTime}");
+            if (_DownTime > 0.5f)
+            {
+                PositionReset();
+            }
         }
+    }
+
+    private void PositionReset()
+    {
+        gameObject.transform.position = _currentPosition;
+        _DownTime = 0;
     }
 
     public void GetJump()
     {
         if (Input.GetKeyDown(KeyCode.Space) && _isGround)
         {
+            StopCoroutine(_posCoroutine);
             _catMovement._catRigid.AddForce(Vector3.up * _catStatus._jumpPower, ForceMode.Impulse);
             _catAnimator.SetBool("Jump", true);
             _isGround = false;
@@ -75,6 +97,8 @@ public class CatController : MonoBehaviour
             _catAnimator.SetBool("Roll", false);
             _catAnimator.SetBool("Swim", false);
             _isGround = true;
+            _posCoroutine = StartCoroutine(Positionlutinroutine());
+
         }
 
         if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
@@ -86,5 +110,11 @@ public class CatController : MonoBehaviour
         }
 
     }
-   
+
+    public IEnumerator Positionlutinroutine()
+    {
+        _currentPosition = gameObject.transform.position;
+        Debug.Log(_currentPosition);
+        yield return _positionSaveTime;
+    }
 }

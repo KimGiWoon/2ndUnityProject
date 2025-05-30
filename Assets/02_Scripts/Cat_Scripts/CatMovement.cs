@@ -28,6 +28,7 @@ public class CatMovement : MonoBehaviour
     {
         _catStatus = GetComponent<CatStatus>();
         _catRigid = GetComponent<Rigidbody>();
+        
     }
 
     public Vector3 GetMoveInput()  // Move key Input
