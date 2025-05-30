@@ -32,8 +32,8 @@ public class CatMovement : MonoBehaviour
 
     public Vector3 GetMoveInput()  // Move key Input
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveZ = Input.GetAxisRaw("Vertical");
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
 
         Vector3 inputDir = new Vector3(moveX, 0, moveZ).normalized;
 

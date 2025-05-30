@@ -34,7 +34,6 @@ public class CatController : MonoBehaviour
         _catMovement = GetComponent<CatMovement>();
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
-        _isGround = true;
     }
 
     private void CatMovement()
@@ -74,8 +73,18 @@ public class CatController : MonoBehaviour
         {
             _catAnimator.SetBool("Jump", false);
             _catAnimator.SetBool("Roll", false);
+            _catAnimator.SetBool("Swim", false);
             _isGround = true;
         }
 
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
+        {
+            _catAnimator.SetBool("Swim", true);
+            _catAnimator.SetBool("Roll", false);
+            _isGround = false;
+            Debug.Log("¹°¿¡ µé¾î¿È");
+        }
+
     }
+   
 }
