@@ -7,13 +7,18 @@ public class CatController : MonoBehaviour
     [SerializeField] Animator _catAnimator;
     [SerializeField] float _rollStartVel = -5f;
     [SerializeField] float _posSaveTime = 1f;
+    Vector3 _moveVec;
     Vector3 _currentPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
+
     bool _isGround;
+    bool _isJumpTrap = false;
+    bool _isRoll;
+    float _DownTime = 0;
+    
     public Coroutine _posCoroutine;
     WaitForSeconds _positionSaveTime;
-    float _DownTime;
 
     private void Awake()
     {
@@ -40,17 +45,16 @@ public class CatController : MonoBehaviour
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
         _positionSaveTime = new WaitForSeconds(_posSaveTime);
-        _DownTime = 0;
     }
 
     private void CatMovement()
     {
         // Cat Move
-        Vector3 moveDir = _catMovement.SetMove();
+        _moveVec = _catMovement.SetMove();
         //bool isRun = moveDir != Vector3.zero ? true : false;
-        _catAnimator.SetFloat("MoveSpeed", moveDir.magnitude);
+        _catAnimator.SetFloat("MoveSpeed", _moveVec.magnitude);
 
-        _catMovement.SetRotation(moveDir);
+        _catMovement.SetRotation(_moveVec);
         _catMovement.SetMouseRotation();
     }
 
@@ -60,10 +64,11 @@ public class CatController : MonoBehaviour
         if (_catMovement._catRigid.velocity.y < _rollStartVel)
         {
             _catAnimator.SetBool("Roll", true);
+            _isRoll = true;
 
             _DownTime += Time.fixedDeltaTime;
-            Debug.Log($"다운 타임 : {_DownTime}");
-            if (_DownTime > 0.5f)
+
+            if (_DownTime > 0.5f && !_isJumpTrap)
             {
                 PositionReset();
             }
@@ -97,6 +102,8 @@ public class CatController : MonoBehaviour
             _catAnimator.SetBool("Roll", false);
             _catAnimator.SetBool("Swim", false);
             _isGround = true;
+            _isRoll = false;
+            _isJumpTrap = false;
             _posCoroutine = StartCoroutine(Positionlutinroutine());
 
         }
@@ -106,7 +113,15 @@ public class CatController : MonoBehaviour
             _catAnimator.SetBool("Swim", true);
             _catAnimator.SetBool("Roll", false);
             _isGround = false;
-            Debug.Log("물에 들어옴");
+        }
+
+        if(collision.gameObject.layer == LayerMask.NameToLayer("Trap"))
+        {
+            _isJumpTrap = true;
+            if (!_isRoll)
+            {
+                _catAnimator.SetTrigger("Bounce");
+            }
         }
 
     }
@@ -114,7 +129,6 @@ public class CatController : MonoBehaviour
     public IEnumerator Positionlutinroutine()
     {
         _currentPosition = gameObject.transform.position;
-        Debug.Log(_currentPosition);
         yield return _positionSaveTime;
     }
 }
