@@ -7,6 +7,8 @@ public class CatController : MonoBehaviour, IDamagable
     [SerializeField] Animator _catAnimator;
     [SerializeField] float _rollStartVel = -5f;
     [SerializeField] float _posSaveTime = 1f;
+
+    public bool _isActiveControl { get; set; } = true;
     Vector3 _moveVec;
     Vector3 _currentPosition;
     CatMovement _catMovement;
@@ -29,6 +31,7 @@ public class CatController : MonoBehaviour, IDamagable
     {
         if (_catStatus._isAlive)
         {
+            if (!_isActiveControl) return;
             CatMovement();
             GetJump();
         }

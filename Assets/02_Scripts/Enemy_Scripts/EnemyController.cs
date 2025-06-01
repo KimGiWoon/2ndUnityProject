@@ -9,7 +9,8 @@ public class EnemyController : MonoBehaviour, IDamagable
 
     NavMeshAgent _navMeshAgent;
     EnemtStatus _status;
-    public bool _canTrace { get; set; } = false;
+    public bool _canTrace = false;
+    public bool _isActiveContol { get; set; } = false;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class EnemyController : MonoBehaviour, IDamagable
     {
         if (_status._isAlive)
         {
+            if (!_isActiveContol) return;
             EnemyMove();
         }
         else
