@@ -9,7 +9,7 @@ public class EnemyController : MonoBehaviour, IDamagable
 
     NavMeshAgent _navMeshAgent;
     EnemtStatus _status;
-    bool _canTrace = true;
+    public bool _canTrace { get; set; } = false;
 
     private void Awake()
     {
