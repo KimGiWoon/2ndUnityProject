@@ -11,6 +11,7 @@ public class CatController : MonoBehaviour, IDamagable
     public bool _isActiveControl { get; set; } = true;
     Vector3 _moveVec;
     Vector3 _currentPosition;
+    Vector3 _firstPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
 
@@ -35,6 +36,10 @@ public class CatController : MonoBehaviour, IDamagable
             CatMovement();
             GetJump();
         }
+        else
+        {
+            CatDie();
+        }
     }
 
     private void FixedUpdate()
@@ -48,6 +53,8 @@ public class CatController : MonoBehaviour, IDamagable
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
         _positionSaveTime = new WaitForSeconds(_posSaveTime);
+        _firstPosition = transform.position;
+        _catStatus._curHp = _catStatus._maxHp;
     }
 
     private void CatMovement()
@@ -96,6 +103,11 @@ public class CatController : MonoBehaviour, IDamagable
             DownSpin();
         }
     }
+    
+    private void CatDie()
+    {
+        StopCoroutine( _posCoroutine);
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -107,7 +119,7 @@ public class CatController : MonoBehaviour, IDamagable
             _isGround = true;
             _isRoll = false;
             _isJumpTrap = false;
-            _posCoroutine = StartCoroutine(Positionlutinroutine());
+            _posCoroutine = StartCoroutine(Positionlutin());
 
         }
 
@@ -129,14 +141,15 @@ public class CatController : MonoBehaviour, IDamagable
 
     }
 
-    public IEnumerator Positionlutinroutine()
+    public IEnumerator Positionlutin()
     {
-        _currentPosition = gameObject.transform.position;
+        _currentPosition = transform.position;
         yield return _positionSaveTime;
     }
 
     public void TakeDamage(int damage)
     {
-        
+        _catStatus._curHp -= damage;
+        Debug.Log($"고양이 남은 체력 : {_catStatus._curHp}");
     }
 }

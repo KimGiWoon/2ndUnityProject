@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyController : MonoBehaviour, IDamagable
+public class EnemyController : MonoBehaviour
 {
     [SerializeField] Transform _target;
 
@@ -33,7 +33,6 @@ public class EnemyController : MonoBehaviour, IDamagable
     private void Init()
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        //_navMeshAgent.isStopped = true;
         _status = GetComponent<EnemtStatus>();
         _status._isAlive = true;
     }
@@ -48,8 +47,6 @@ public class EnemyController : MonoBehaviour, IDamagable
         {
             _navMeshAgent.SetDestination(_target.position);
         }
-
-        //_navMeshAgent.isStopped = !_canTrace;
     }
 
     private void EnemyDie()
@@ -57,22 +54,19 @@ public class EnemyController : MonoBehaviour, IDamagable
         Destroy(gameObject);
     }
 
-    public void TakeDamage(int damage)
+    private void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            CatController _cat = collision.gameObject.GetComponent<CatController>();
 
+            if (_cat != null)
+            {
+                _cat.TakeDamage(_status._enemyDamage);
+            }
+
+        }
     }
 
-    //private void OnCollisionEnter(Collision collision)
-    //{
-    //    if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
-    //    {
-    //        CatController _cat = collision.gameObject.GetComponent<CatController>();
-
-    //        if (_cat != null)
-    //        {
-    //            _cat.TakeDamage(_status._enemyDamage);
-    //        }
-           
-    //    }
-    //}
+    
 }

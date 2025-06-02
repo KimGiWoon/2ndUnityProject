@@ -8,11 +8,11 @@ public class EnemtStatus : MonoBehaviour
 
     // Enemy Hp
     [SerializeField] int enemyHp;
-    public int _enemyHp { get { return _enemyHp; } set { _enemyHp = value; } }
+    public int _enemyHp { get { return enemyHp; } set { enemyHp = value; } }
 
     // Enemy Damage
     [SerializeField] int enemyDamage;
-    public int _enemyDamage { get { return _enemyDamage; } set { _enemyDamage = value; } }
+    public int _enemyDamage { get { return enemyDamage; } set { enemyDamage = value; } }
 
     // Enemy Alive Check
     [SerializeField] bool isAlive;
