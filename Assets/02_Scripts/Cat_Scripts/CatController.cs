@@ -7,21 +7,30 @@ public class CatController : MonoBehaviour, IDamagable
     [SerializeField] Animator _catAnimator;
     [SerializeField] float _rollStartVel = -5f;
     [SerializeField] float _posSaveTime = 1f;
+    [SerializeField] float recordTime = 3f;
 
     public bool _isActiveControl { get; set; } = true;
+    public Coroutine _posCoroutine;
+
     Vector3 _moveVec;
     Vector3 _currentPosition;
     Vector3 _firstPosition;
+    Vector3 _secondPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
+    Rigidbody _catRigidbody;
 
     bool _isGround;
     bool _isJumpTrap = false;
     bool _isRoll;
+    bool _isRewinding = false;
     float _DownTime = 0;
-    
-    public Coroutine _posCoroutine;
+    float _time;
+
     WaitForSeconds _positionSaveTime;
+    List<Vector3> positionHistory = new List<Vector3>();
+    List<Quaternion> rotationHistory = new List<Quaternion>();
+
 
     private void Awake()
     {
@@ -35,6 +44,7 @@ public class CatController : MonoBehaviour, IDamagable
             if (!_isActiveControl) return;
             CatMovement();
             GetJump();
+            FirstPositionTel();
         }
         else
         {
@@ -45,6 +55,7 @@ public class CatController : MonoBehaviour, IDamagable
     private void FixedUpdate()
     {
         DownSpin();
+
     }
 
     private void Init()
@@ -55,6 +66,8 @@ public class CatController : MonoBehaviour, IDamagable
         _positionSaveTime = new WaitForSeconds(_posSaveTime);
         _firstPosition = transform.position;
         _catStatus._curHp = _catStatus._maxHp;
+        _catRigidbody = GetComponent<Rigidbody>();
+        _time = Time.deltaTime;
     }
 
     private void CatMovement()
@@ -70,21 +83,32 @@ public class CatController : MonoBehaviour, IDamagable
 
     private void DownSpin()
     {
+        if (_isRewinding)
+        {
+            RewindStep();
+        }
+        else
+        {
+            RecordStep();
+        }
 
         if (_catMovement._catRigid.velocity.y < _rollStartVel)
         {
-            _catAnimator.SetBool("Roll", true);
+            _catAnimator.SetBool("Spin", true);
             _isRoll = true;
 
             _DownTime += Time.fixedDeltaTime;
 
             if (_DownTime > 0.5f && !_isJumpTrap)
             {
-                PositionReset();
+                // 되감기 시작
+                StartRewind();
+
+                //PositionReset();
             }
         }
     }
-
+    // TODO : 임시 주석처리 (추후 삭제 예정)
     private void PositionReset()
     {
         gameObject.transform.position = _currentPosition;
@@ -95,18 +119,69 @@ public class CatController : MonoBehaviour, IDamagable
     {
         if (Input.GetKeyDown(KeyCode.Space) && _isGround)
         {
-            StopCoroutine(_posCoroutine);
+            // StopCoroutine(_posCoroutine);
             _catMovement._catRigid.AddForce(Vector3.up * _catStatus._jumpPower, ForceMode.Impulse);
             _catAnimator.SetBool("Jump", true);
             _isGround = false;
-            
+
+            RecordStep();
             DownSpin();
         }
     }
-    
+    // 
+    private void RewindStep()
+    {
+        if (positionHistory.Count > 0)
+        {
+            transform.position = positionHistory[0];
+            transform.rotation = rotationHistory[0];
+            positionHistory.RemoveAt(0);
+            rotationHistory.RemoveAt(0);
+        }
+        else
+        {
+            StopRewind(); // 기록이 다 떨어지면 종료
+        }
+    }
+
+    private void RecordStep()
+    {
+        // 위치와 회전 저장
+        positionHistory.Insert(0, transform.position);
+        rotationHistory.Insert(0, transform.rotation);
+
+        // 기록 시간 제한
+        int maxSteps = Mathf.RoundToInt(recordTime / _time);
+        if (positionHistory.Count > maxSteps)
+        {
+            positionHistory.RemoveAt(positionHistory.Count - 1);
+            rotationHistory.RemoveAt(rotationHistory.Count - 1);
+        }
+    }
+
+    private void StartRewind()
+    {
+        _isRewinding = true;
+        _catRigidbody.isKinematic = true; // 물리 작용 끄기
+    }
+
+    private void StopRewind()
+    {
+        _isRewinding = false;
+        _catRigidbody.isKinematic = false; // 물리 다시 켜기
+    }
+
     private void CatDie()
     {
         StopCoroutine( _posCoroutine);
+    }
+
+    private void FirstPositionTel()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            transform.position = _firstPosition;
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -114,7 +189,7 @@ public class CatController : MonoBehaviour, IDamagable
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             _catAnimator.SetBool("Jump", false);
-            _catAnimator.SetBool("Roll", false);
+            _catAnimator.SetBool("Spin", false);
             _catAnimator.SetBool("Swim", false);
             _isGround = true;
             _isRoll = false;
@@ -126,7 +201,7 @@ public class CatController : MonoBehaviour, IDamagable
         if (collision.gameObject.layer == LayerMask.NameToLayer("Water"))
         {
             _catAnimator.SetBool("Swim", true);
-            _catAnimator.SetBool("Roll", false);
+            _catAnimator.SetBool("Spin", false);
             _isGround = false;
         }
 
