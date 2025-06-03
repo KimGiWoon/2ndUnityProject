@@ -6,9 +6,11 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField] Transform _target;
+    [SerializeField] public Animator _enemyAnimator;
 
     NavMeshAgent _navMeshAgent;
     EnemtStatus _status;
+    public Vector3 _firstPosition;
     public bool _canTrace = false;
     public bool _isActiveContol { get; set; } = false;
 
@@ -35,6 +37,7 @@ public class EnemyController : MonoBehaviour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _status = GetComponent<EnemtStatus>();
         _status._isAlive = true;
+        _firstPosition = transform.position;
     }
 
     private void EnemyMove()
@@ -46,6 +49,11 @@ public class EnemyController : MonoBehaviour
         if (_canTrace)
         {
             _navMeshAgent.SetDestination(_target.position);
+            _enemyAnimator.SetBool("Run", true);
+        }
+        else
+        {
+            _enemyAnimator.SetBool("Run", false);
         }
     }
 
