@@ -14,7 +14,7 @@ public class CatController : MonoBehaviour, IDamagable
 
     Vector3 _moveVec;
     Vector3 _currentPosition;
-    Vector3 _firstPosition;
+    public Vector3 _firstPosition;
     Vector3 _secondPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
