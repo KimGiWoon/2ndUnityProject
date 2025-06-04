@@ -7,17 +7,22 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] GameObject _panel;
     [SerializeField] TextMeshProUGUI _PlayTimeText;
+    [SerializeField] CatStatus _catStatus;
 
     float _currentTime;  // Play Time
     float _maxTime = 60f;
     float _secondTime = 0;
     int _minuteTime = 0;
     bool _isEscape = false;
+    public bool _isStop = false;
 
     private void Update()
     {
         OnExitPanel();
-        GetPlayTime();
+        if (!_isStop)
+        {
+            GetPlayTime();
+        }
     }
 
     public void GameExit()

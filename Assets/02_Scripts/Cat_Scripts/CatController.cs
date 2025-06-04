@@ -44,10 +44,7 @@ public class CatController : MonoBehaviour, IDamagable
             GetJump();
             FirstPositionTel();
         }
-        else
-        {
-            //CatDie();
-        }
+
     }
 
     private void FixedUpdate()
@@ -167,11 +164,6 @@ public class CatController : MonoBehaviour, IDamagable
         _isRewinding = false;
         _catRigidbody.isKinematic = false; // 물리 다시 켜기
     }
-
-    //private void CatDie()
-    //{
-        
-    //}
 
     private void FirstPositionTel()
     {
