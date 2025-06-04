@@ -9,6 +9,7 @@ public class TrapEvent : MonoBehaviour
     [SerializeField] EnemyController[] _enemyControl;
     [SerializeField] bool _Retry;
     bool _firstIn = true;
+    
 
  
     private void OnTriggerEnter(Collider other)

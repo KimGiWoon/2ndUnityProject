@@ -6,16 +6,14 @@ public class CatController : MonoBehaviour, IDamagable
 {
     [SerializeField] Animator _catAnimator;
     [SerializeField] float _rollStartVel = -5f;
-    [SerializeField] float _posSaveTime = 1f;
     [SerializeField] float recordTime = 3f;
 
     public bool _isActiveControl { get; set; } = true;
-    public Coroutine _posCoroutine;
 
     Vector3 _moveVec;
     Vector3 _currentPosition;
     public Vector3 _firstPosition;
-    Vector3 _secondPosition;
+    public Vector3 _secondPosition;
     CatMovement _catMovement;
     CatStatus _catStatus;
     Rigidbody _catRigidbody;
@@ -63,7 +61,6 @@ public class CatController : MonoBehaviour, IDamagable
         _catMovement = GetComponent<CatMovement>();
         _catStatus = GetComponent<CatStatus>();
         _catStatus._isAlive = true;
-        _positionSaveTime = new WaitForSeconds(_posSaveTime);
         _firstPosition = transform.position;
         _catStatus._curHp = _catStatus._maxHp;
         _catRigidbody = GetComponent<Rigidbody>();
@@ -173,7 +170,7 @@ public class CatController : MonoBehaviour, IDamagable
 
     private void CatDie()
     {
-        StopCoroutine( _posCoroutine);
+        transform.position = _secondPosition;
     }
 
     private void FirstPositionTel()
@@ -194,7 +191,7 @@ public class CatController : MonoBehaviour, IDamagable
             _isGround = true;
             _isRoll = false;
             _isJumpTrap = false;
-            _posCoroutine = StartCoroutine(Positionlutin());
+            //_posCoroutine = StartCoroutine(Positionlutin());
 
         }
 
@@ -216,15 +213,20 @@ public class CatController : MonoBehaviour, IDamagable
 
     }
 
-    public IEnumerator Positionlutin()
-    {
-        _currentPosition = transform.position;
-        yield return _positionSaveTime;
-    }
+    //public IEnumerator Positionlutin()
+    //{
+    //    _currentPosition = transform.position;
+    //    yield return _positionSaveTime;
+    //}
 
     public void TakeDamage(int damage)
     {
         _catStatus._curHp -= damage;
-        Debug.Log($"고양이 남은 체력 : {_catStatus._curHp}");
+        
+        if(_catStatus._curHp == 0)
+        {
+            _catAnimator.SetBool("Death", true);
+            _catStatus._isAlive = false;
+        }
     }
 }
