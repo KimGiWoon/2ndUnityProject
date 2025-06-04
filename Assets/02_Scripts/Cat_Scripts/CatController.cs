@@ -46,7 +46,7 @@ public class CatController : MonoBehaviour, IDamagable
         }
         else
         {
-            CatDie();
+            //CatDie();
         }
     }
 
@@ -168,10 +168,10 @@ public class CatController : MonoBehaviour, IDamagable
         _catRigidbody.isKinematic = false; // 물리 다시 켜기
     }
 
-    private void CatDie()
-    {
-        transform.position = _secondPosition;
-    }
+    //private void CatDie()
+    //{
+        
+    //}
 
     private void FirstPositionTel()
     {
@@ -225,8 +225,8 @@ public class CatController : MonoBehaviour, IDamagable
         
         if(_catStatus._curHp == 0)
         {
-            _catAnimator.SetBool("Death", true);
-            _catStatus._isAlive = false;
+            transform.position = _secondPosition;
+            _catStatus._curHp = _catStatus._maxHp;
         }
     }
 }
